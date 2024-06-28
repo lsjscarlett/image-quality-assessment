@@ -1,24 +1,21 @@
-FROM tensorflow/tensorflow:2.0.0-py3
+# Use the official Python image from the Docker Hub
+FROM python:3.11.4
 
-# Install system packages
-RUN apt-get update && apt-get install -y --no-install-recommends \
-      bzip2 \
-      g++ \
-      git \
-      graphviz \
-      libgl1-mesa-glx \
-      libhdf5-dev \
-      openmpi-bin \
-      wget && \
-    rm -rf /var/lib/apt/lists/*
+# Set the working directory
+WORKDIR /usr/src/app
 
-COPY src /src
-COPY entrypoints /src/entrypoints
+# Install HDF5 library
+RUN apt-get update && apt-get install -y \
+    libhdf5-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /src
+# Copy the requirements file
+COPY requirements.txt .
 
-RUN pip install -r requirements.txt
+# Install the dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
-ENV PYTHONPATH='/src/:$PYTHONPATH'
+# Copy the rest of the application
+COPY . .
 
-ENTRYPOINT ["entrypoints/entrypoint.train.cpu.sh"]
+
