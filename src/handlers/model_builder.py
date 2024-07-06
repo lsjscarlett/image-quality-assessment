@@ -1,20 +1,19 @@
-
 import importlib
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Dropout, Dense
 from tensorflow.keras.optimizers import Adam
-from utils.losses import earth_movers_distance
+import tensorflow as tf
+from src.utils.losses import earth_movers_distance
 
 
 class Nima:
     def __init__(self, base_model_name, n_classes=10, learning_rate=0.001, dropout_rate=0, loss=earth_movers_distance,
-                 decay=0, weights='imagenet'):
+                 weights='imagenet'):
         self.n_classes = n_classes
         self.base_model_name = base_model_name
         self.learning_rate = learning_rate
         self.dropout_rate = dropout_rate
         self.loss = loss
-        self.decay = decay
         self.weights = weights
         self._get_base_module()
 
@@ -41,7 +40,21 @@ class Nima:
         self.nima_model = Model(self.base_model.inputs, x)
 
     def compile(self):
-        self.nima_model.compile(optimizer=Adam(lr=self.learning_rate, decay=self.decay), loss=self.loss)
+        self.nima_model.compile(optimizer=Adam(learning_rate=self.learning_rate), loss=self.loss)
 
     def preprocessing_function(self):
         return self.base_module.preprocess_input
+
+# Example of using the Nima class to build and save a model
+if __name__ == '__main__':
+    # Initialize Nima model with MobileNet as the base model
+    nima = Nima(base_model_name='MobileNet', weights=None)
+
+    # Build and compile the model
+    nima.build()
+    nima.compile()
+
+    # Save the model
+    export_path = './mobilenet_model/1'
+    tf.saved_model.save(nima.nima_model, export_path)
+    print(f'Model saved to {export_path}')

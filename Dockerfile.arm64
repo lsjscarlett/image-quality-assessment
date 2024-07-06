@@ -1,0 +1,41 @@
+# Use Ubuntu as the base image
+FROM --platform=linux/arm64 ubuntu:20.04
+
+# Set the working directory
+WORKDIR /usr/src/app
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    wget \
+    curl \
+    git \
+    python3 \
+    python3-pip \
+    build-essential \
+    libhdf5-dev \
+    pkg-config \
+    libhdf5-serial-dev \
+    hdf5-tools \
+    libblas-dev \
+    liblapack-dev \
+    gfortran
+
+# Install pip packages
+RUN pip3 install tensorflow-serving-api
+
+# Create a directory for the model
+RUN mkdir -p /models/mobilenet_model
+
+# Copy the model to the model directory in the container
+COPY src/handlers/mobilenet_model /models/mobilenet_model
+
+# Set environment variables
+ENV MODEL_BASE_PATH=/models
+ENV MODEL_NAME=mobilenet_model
+
+# Expose the ports for gRPC and REST API
+EXPOSE 8500
+EXPOSE 8501
+
+# Run TensorFlow Serving
+ENTRYPOINT ["tensorflow_model_server", "--port=8500", "--rest_api_port=8501", "--model_name=${MODEL_NAME}", "--model_base_path=/models/${MODEL_NAME}"]
