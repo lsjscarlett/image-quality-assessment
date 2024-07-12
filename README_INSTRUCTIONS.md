@@ -30,7 +30,7 @@ cd /path/to/your/directory
 
 2. ### Clone the project from github
 ```bash
-git clone --depth 1 https://github.com/idealo/image-quality-assessment
+git clone https://github.com/lsjscarlett/image-quality-assessment
 ```
 
 3. ### Install required packages
