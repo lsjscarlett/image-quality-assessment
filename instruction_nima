@@ -1,0 +1,64 @@
+## Prerequisites
+
+Ensure you have the following installed:
+- Python 3.x
+
+Navigate to the Directory Where You Want to Clone the Repository:
+```bash
+cd /path/to/your/directory
+```
+
+Clone the project from github
+```bash
+git clone --depth 1 https://github.com/idealo/image-quality-assessment
+```
+
+Install required packages
+```bash
+ pip install nose
+ pip install scikit-learn
+ pip install pillow
+ pip install utilis
+ pip install tensorflow
+ pip install numpy
+```
+
+## Code Modifications
+Modify utilis.py file from utilis folder
+```
+from src.utils.utils import calc_mean_score, save_json
+from src.handlers.model_builder import Nima
+from src.handlers.data_generator import TestDataGenerator
+```
+
+Modify model_builder.py from handles folder
+```
+from src.utils.losses import earth_movers_distance
+```
+
+Make change to data_generator.py from handles folder
+```
+from src.utils import utils
+```
+
+Modify the predict function in predict.py file from evaluator folder
+```
+def predict(model, data_generator):
+    return model.predict(data_generator, verbose=1)
+```
+
+Get score for a single image file
+```bash
+PYTHONPATH=$(pwd) python src/evaluater/predict.py \
+  --base-model-name MobileNet \
+  --weights-file $(pwd)/models/MobileNet/weights_mobilenet_technical_0.11.hdf5 \
+  --image-source $(pwd)/src/tests/test_images/42039.jpg
+```
+
+Get score for a batch of image files
+```bash
+PYTHONPATH=$(pwd) python src/evaluater/predict.py \
+  --base-model-name MobileNet \
+  --weights-file $(pwd)/models/MobileNet/weights_mobilenet_technical_0.11.hdf5 \
+  --image-source $(pwd)/src/tests/test_images/
+```

@@ -25,7 +25,7 @@ theme:
   logo: 'img/logo.svg'
   favicon: 'img/favicon.ico'
 
-repo_name: 'idealo/image-quality-assessment'
+repo_name: 'idealo/image-quality-assessment_instruction'
 repo_url: 'https://github.com/idealo/image-quality-assessment'
 
 google_analytics:
