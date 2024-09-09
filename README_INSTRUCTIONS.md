@@ -28,7 +28,7 @@ Navigate to the Directory Where You Want to Clone the Repository:
 cd /path/to/your/directory
 ```
 
-2. ### Clone the project from github
+2. ### Clone the project from GitHub
 ```bash
 git clone https://github.com/lsjscarlett/image-quality-assessment
 ```
