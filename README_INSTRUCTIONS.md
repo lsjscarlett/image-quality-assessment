@@ -41,6 +41,9 @@ git clone https://github.com/lsjscarlett/image-quality-assessment
  pip install utilis
  pip install tensorflow
  pip install numpy
+ brew install libheif
+ pip install pyheif pillow
+
 ```
 
 4. ### Code Modifications

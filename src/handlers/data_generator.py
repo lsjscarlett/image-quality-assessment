@@ -9,6 +9,7 @@ class TrainDataGenerator(tf.keras.utils.Sequence):
     '''inherits from Keras Sequence base object, allows to use multiprocessing in .fit_generator'''
     def __init__(self, samples, img_dir, batch_size, n_classes, basenet_preprocess, img_format,
                  img_load_dims=(256, 256), img_crop_dims=(224, 224), shuffle=True):
+        super().__init__
         self.samples = samples
         self.img_dir = img_dir
         self.batch_size = batch_size
@@ -62,6 +63,7 @@ class TestDataGenerator(tf.keras.utils.Sequence):
     '''inherits from Keras Sequence base object, allows to use multiprocessing in .fit_generator'''
     def __init__(self, samples, img_dir, batch_size, n_classes, basenet_preprocess, img_format,
                  img_load_dims=(224, 224)):
+        super().__init__()
         self.samples = samples
         self.img_dir = img_dir
         self.batch_size = batch_size
@@ -84,23 +86,29 @@ class TestDataGenerator(tf.keras.utils.Sequence):
         self.indexes = np.arange(len(self.samples))
 
     def __data_generator(self, batch_samples):
-        # initialize images and labels tensors for faster processing
         X = np.empty((len(batch_samples), *self.img_load_dims, 3))
         y = np.empty((len(batch_samples), self.n_classes))
 
         for i, sample in enumerate(batch_samples):
-            # load and randomly augment image
-            img_file = os.path.join(self.img_dir, '{}.{}'.format(sample['image_id'], self.img_format))
-            img = utils.load_image(img_file, self.img_load_dims)
-            if img is not None:
-                X[i, ] = img
+            img_found = False
+            for ext in ['jpg', 'jpeg', 'png']:  # Add any other formats as needed
+                img_file = os.path.join(self.img_dir, f"{sample['image_id']}.{ext}")
+                if os.path.exists(img_file):
+                    img = utils.load_image(img_file, self.img_load_dims)
+                    if img is not None:
+                        X[i,] = img
+                        img_found = True
+                    break
+
+            if not img_found:
+                print(f"Image not found for {sample['image_id']}")
 
             # normalize labels
             if sample.get('label') is not None:
-                y[i, ] = utils.normalize_labels(sample['label'])
+                y[i,] = utils.normalize_labels(sample['label'])
 
         # apply basenet specific preprocessing
-        # input is 4D numpy array of RGB values within [0, 255]
         X = self.basenet_preprocess(X)
 
         return X, y
+
