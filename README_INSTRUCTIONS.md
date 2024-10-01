@@ -22,6 +22,7 @@ To set up the project, follow these steps:
 
 Ensure you have the following installed:
 - Python 3.x
+- ImageMagick 7.x (for handling HEIC and other image formats)
 
 Navigate to the Directory Where You Want to Clone the Repository:
 ```bash
@@ -43,6 +44,7 @@ git clone https://github.com/lsjscarlett/image-quality-assessment
  pip install numpy
  brew install libheif
  pip install pyheif pillow
+ brew install imagemagick
 
 ```
 

@@ -35,9 +35,26 @@ def random_horizontal_flip(img):
     return img
 
 
-def load_image(img_file, target_size):
-    return np.asarray(tf.keras.preprocessing.image.load_img(img_file, target_size=target_size))
+# def load_image(img_file, target_size):
+#    return np.asarray(tf.keras.preprocessing.image.load_img(img_file, target_size=target_size))
+def load_image(img_file, target_size=None):
+    try:
+        # Read image file
+        img = tf.io.read_file(img_file)
 
+        # Decode image
+        img = tf.image.decode_image(img, channels=3)
+
+        # Resize image if target_size is provided
+        if target_size:
+            img = tf.image.resize(img, target_size)
+
+        # Convert to numpy array
+        return np.asarray(img)
+
+    except Exception as e:
+        print(f"Error loading image: {img_file}. Exception: {e}")
+        return None
 
 def normalize_labels(labels):
     labels_np = np.array(labels)

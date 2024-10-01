@@ -9,7 +9,7 @@ class TrainDataGenerator(tf.keras.utils.Sequence):
     '''inherits from Keras Sequence base object, allows to use multiprocessing in .fit_generator'''
     def __init__(self, samples, img_dir, batch_size, n_classes, basenet_preprocess, img_format,
                  img_load_dims=(256, 256), img_crop_dims=(224, 224), shuffle=True):
-        super().__init__
+        super().__init__()
         self.samples = samples
         self.img_dir = img_dir
         self.batch_size = batch_size
@@ -20,6 +20,8 @@ class TrainDataGenerator(tf.keras.utils.Sequence):
         self.shuffle = shuffle
         self.img_format = img_format
         self.on_epoch_end()  # call ensures that samples are shuffled in first epoch if shuffle is set to True
+        # new added
+        print(f"Number of samples: {len(samples)}")
 
     def __len__(self):
         return int(np.ceil(len(self.samples) / self.batch_size))  # number of batches per epoch
@@ -34,6 +36,7 @@ class TrainDataGenerator(tf.keras.utils.Sequence):
         self.indexes = np.arange(len(self.samples))
         if self.shuffle is True:
             np.random.shuffle(self.indexes)
+
 
     def __data_generator(self, batch_samples):
         # initialize images and labels tensors for faster processing
@@ -109,6 +112,5 @@ class TestDataGenerator(tf.keras.utils.Sequence):
 
         # apply basenet specific preprocessing
         X = self.basenet_preprocess(X)
-
         return X, y
 
