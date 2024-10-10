@@ -49,7 +49,7 @@ git clone https://github.com/lsjscarlett/image-quality-assessment
 ```
 
 4. ### Code Modifications
-Modify utilis.py file from utilis folder
+Modify predict.py file from utilis folder
 ```
 from src.utils.utils import calc_mean_score, save_json
 from src.handlers.model_builder import Nima
