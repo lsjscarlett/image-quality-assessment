@@ -34,9 +34,6 @@ def random_horizontal_flip(img):
         img = img.swapaxes(0, 1)
     return img
 
-
-# def load_image(img_file, target_size):
-#    return np.asarray(tf.keras.preprocessing.image.load_img(img_file, target_size=target_size))
 def load_image(img_file, target_size=None):
     try:
         # Read image file
@@ -69,3 +66,12 @@ def calc_mean_score(score_dist):
 def ensure_dir_exists(dir):
     if not os.path.exists(dir):
         os.makedirs(dir)
+
+
+def spread_scores(labels, factor=5):
+    """
+    Applies a power transformation to spread scores.
+    Lower scores become lower, higher scores become higher.
+    """
+    rescaled = np.power(labels, factor)
+    return rescaled / np.sum(rescaled)

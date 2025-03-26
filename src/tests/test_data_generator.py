@@ -2,7 +2,7 @@
 import os
 import unittest
 import numpy as np
-from handlers.data_generator import TrainDataGenerator, TestDataGenerator
+from src.handlers.data_generator import TrainDataGenerator, TestDataGenerator, exponential_rescale, spread
 
 
 IMG_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'test_images')
@@ -86,3 +86,10 @@ class TestTrainDataGenerator(unittest.TestCase):
         # test number of batches
         expected = 3
         self.assertEqual(dg.__len__(), expected)
+
+class TestDataGeneratorRescalingTest(unittest.TestCase):
+    def test_rescale_function(self):
+        labels = np.array([1, 2, 3, 4])
+        rescaled_labels = spread_scores(labels, factor=5)
+        self.assertAlmostEqual(np.sum(rescaled_labels), 1.0, places=5)  # Ensure it sums to 1
+        self.assertTrue(np.all(rescaled_labels > 0))  # All values should be positive

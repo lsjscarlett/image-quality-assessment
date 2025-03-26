@@ -65,7 +65,7 @@ class TrainDataGenerator(tf.keras.utils.Sequence):
 class TestDataGenerator(tf.keras.utils.Sequence):
     '''inherits from Keras Sequence base object, allows to use multiprocessing in .fit_generator'''
     def __init__(self, samples, img_dir, batch_size, n_classes, basenet_preprocess, img_format,
-                 img_load_dims=(224, 224)):
+                 img_load_dims=(224, 224), rescale_function=None):
         super().__init__()
         self.samples = samples
         self.img_dir = img_dir
@@ -74,6 +74,7 @@ class TestDataGenerator(tf.keras.utils.Sequence):
         self.basenet_preprocess = basenet_preprocess  # Keras basenet specific preprocessing function
         self.img_load_dims = img_load_dims  # dimensions that images get resized into when loaded
         self.img_format = img_format
+        self.rescale_function = rescale_function
         self.on_epoch_end()  # call ensures that samples are shuffled in first epoch if shuffle is set to True
 
     def __len__(self):
@@ -94,23 +95,53 @@ class TestDataGenerator(tf.keras.utils.Sequence):
 
         for i, sample in enumerate(batch_samples):
             img_found = False
-            for ext in ['jpg', 'jpeg', 'png']:  # Add any other formats as needed
-                img_file = os.path.join(self.img_dir, f"{sample['image_id']}.{ext}")
+            for ext in ['jpg', 'jpeg', 'png', 'heic', 'JPEG', 'PNG']:
+                img_file = os.path.join(self.img_dir, f"{sample['image_id']}.{ext.lower()}")
                 if os.path.exists(img_file):
                     img = utils.load_image(img_file, self.img_load_dims)
                     if img is not None:
                         X[i,] = img
                         img_found = True
                     break
-
             if not img_found:
                 print(f"Image not found for {sample['image_id']}")
 
-            # normalize labels
+            # Normalize labels
             if sample.get('label') is not None:
-                y[i,] = utils.normalize_labels(sample['label'])
+                normalized_label = utils.normalize_labels(sample['label'])
+                y[i,] = self.rescale_function(normalized_label) if self.rescale_function else normalized_label
 
-        # apply basenet specific preprocessing
+        # Apply basenet-specific preprocessing
         X = self.basenet_preprocess(X)
         return X, y
 
+
+
+def spread_scores(labels, factor=5):
+    """Applies exponential rescaling to normalized labels."""
+    rescaled = np.power(labels, factor)
+    return rescaled / np.sum(rescaled)
+
+
+if __name__ == "__main__":
+    # Sample data
+    samples = [
+        {'image_id': '42039', 'label': [0, 5, 10, 28, 54, 31, 12, 3, 3, 2]},
+        {'image_id': '42040', 'label': [0, 15, 25, 18, 40, 21, 9, 7, 6, 5]},
+    ]
+
+    # Initialize the generator with a rescaling function
+    generator = TestDataGenerator(
+        samples,
+        img_dir='/src/tests/test_images',
+        batch_size=2,
+        n_classes=10,
+        basenet_preprocess=lambda x: x / 255.0,  # Example preprocessing
+        img_format='jpg',
+        rescale_function=lambda labels: exponential_rescale(labels, factor=0.5)
+    )
+
+    # Retrieve a batch
+    X, y = generator.__getitem__(0)
+    print("Images shape:", X.shape)
+    print("Labels after rescaling:", y)
